@@ -10,14 +10,9 @@ end
 local function generateGradientGrid(size)
   local result = {}
   for i = 0, size - 1 do
-    local angle = math.random(0, 2 * math.pi)
+    local angle = math.random() * math.pi * 2
     result[i] = { math.cos(angle), math.sin(angle) }
   end
-  --[[ 
-  for i = 0, width * height - 1 do
-    local angle = math.random(0, 2 * math.pi)
-    result[i] = { math.cos(angle), math.sin(angle) }
-  end]]
   return result
 end
 
@@ -33,7 +28,7 @@ end
 
 local function get(permtable, grid, size, x, y)
   -- return grid[x + y * grid.width]
-  return grid[(x + permtable[y]) % size]
+  return grid[(x + permtable[y % size]) % size]
 end
 
 local function dotGrid(permtable, grid, size, gx, gy, x, y)

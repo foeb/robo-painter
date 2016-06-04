@@ -7,3 +7,6 @@
 [submodule "lib/cranberry"]
 	path = lib/cranberry
 	url = ../cranberry.lua
+[submodule "lib/serpent"]
+	path = lib/serpent
+	url = https://github.com/pkulchenko/serpent
