@@ -52,8 +52,11 @@ function perlin:generate(x, y)
   local x2 = x1 + 1
   local y1 = math.floor(y)
   local y2 = y1 + 1
-  local function weight(p)
+  local function weightHermite(p) -- Perlin recommends against this one
     return 3 * p^2 - 2 * p^3
+  end
+  local function weight(p) -- has a continuous second derivative everywhere
+    return 6 * p^5 - 15 * p^4 + 10 * p^3
   end
   local sx = weight(x - x1)
   local sy = weight(y - y1)
