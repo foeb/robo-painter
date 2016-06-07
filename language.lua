@@ -6,35 +6,27 @@ local language = {}
 
 local noise = perlin.create()
 
-local function assert2(a, b)
-  assert(a ~= nil and b ~= nil)
-end
-
 language.operations = {
   add = {
     fun = function(x, y, a1, a2) 
-      assert2(a1, a2)
       return a1 + a2
     end,
     args = 2
   },
   sub = {
     fun = function(x, y, a1, a2) 
-      assert2(a1, a2)
       return a1 - a2 
     end,
     args = 2
   },
   mul = {
     fun = function(x, y, a1, a2)
-      assert2(a1, a2)
       return a1 * a2
     end,
     args = 2
   },
   div = {
     fun = function(x, y, a1, a2)
-      assert2(a1, a2)
       if a2 == 0 then
         return a1
       end
@@ -44,70 +36,60 @@ language.operations = {
   },
   pow = {
     fun = function(x, y, a1, a2)
-      assert2(a1, a2)
       return a1 ^ a2
     end,
     args = 2
   },
   sin = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.sin(a)
     end,
     args = 1
   },
   cos = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.cos(a)
     end,
     args = 1
   },
   tan = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.tan(a)
     end,
     args = 1
   },
   abs = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.abs(a)
     end,
     args = 1
   },
   exp = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.exp(a)
     end,
     args = 1
   },
   log = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.log(a)
     end,
     args = 1
   },
   min = {
     fun = function(x, y, a1, a2)
-      assert2(a1, a2)
       return math.min(a1, a2)
     end,
     args = 2
   },
   max = {
     fun = function(x, y, a1, a2)
-      assert2(a1, a2)
       return math.max(a1, a2)
     end,
     args = 2
   },
   sqrt = {
     fun = function(x, y, a)
-      assert(a ~= nil)
       return math.sqrt(a)
     end,
     args = 1
@@ -150,9 +132,7 @@ end
 function language.interpret(tree, x, y)
   if type(tree) == "table" then
     local ops = tree[1]
-    assert(type(ops) == "string", "tree[1] must be a string")
     local op = language.operations[ops]
-    assert(op ~= nil, "Operation not found: " .. ops)
     local a1 = language.interpret(tree[2], x, y)
     local a2 = language.interpret(tree[3], x, y)
     local result = op.fun(x, y, a1, a2)

@@ -27,12 +27,8 @@ local function generatePermtable(size)
 end
 
 function perlin:get(x, y)
-  -- FIXME should this expression never rely on math.random?
-  --x = ((isnan(x) or isinf(x) or x == nil) and math.random(self.size)) or x
-  --y = ((isnan(y) or isinf(y) or y == nil) and math.random(self.size)) or y
   x = ((utility.isnan(x) or utility.isinf(x) or x == nil) and 0) or x
   y = ((utility.isnan(y) or utility.isinf(y) or y == nil) and 0) or y
-  assert((y % self.size) < #self.permtable, tostring(y) .. ", " .. tostring(self.size))
   return self.grid[(x + self.permtable[y % self.size]) % self.size]
 end
 
