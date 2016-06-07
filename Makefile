@@ -9,11 +9,8 @@ OBJS=libperlin.o
 default: all
 all: $(SOBJS)
 
-libperlin.so: libperlin.o
-	$(CC) $(CFLAGS) -o $@ $^
-
-libperlin.o: libperlin.c
-	$(CC) $(CFLAGS) -o $@ $^
+libperlin.so: libperlin.c libperlin.h
+	$(CC) $(CFLAGS) -o $@ $<
 
 .PHONY: clean
 clean:
