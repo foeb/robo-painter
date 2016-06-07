@@ -1,12 +1,9 @@
-[submodule "lib/love-term"]
-	path = lib/love-term
-	url = ../love-term
 [submodule "lib/loveterm"]
 	path = lib/loveterm
-	url = ../loveterm
+	url = https://github.com/foeb/loveterm
 [submodule "lib/cranberry"]
 	path = lib/cranberry
-	url = ../cranberry.lua
+	url = https://github.com/foeb/cranberry.lua
 [submodule "lib/serpent"]
 	path = lib/serpent
 	url = https://github.com/pkulchenko/serpent
