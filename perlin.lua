@@ -1,4 +1,4 @@
-
+local utility = require "utility"
 local cb = require "lib/cranberry/cranberry"
 
 local perlin = {}
@@ -26,25 +26,29 @@ local function generatePermtable(size)
   return t
 end
 
-local function get(permtable, grid, size, x, y)
-  -- return grid[x + y * grid.width]
-  return grid[(x + permtable[y % size]) % size]
+function perlin:get(x, y)
+  -- FIXME should this expression never rely on math.random?
+  --x = ((isnan(x) or isinf(x) or x == nil) and math.random(self.size)) or x
+  --y = ((isnan(y) or isinf(y) or y == nil) and math.random(self.size)) or y
+  x = ((utility.isnan(x) or utility.isinf(x) or x == nil) and 0) or x
+  y = ((utility.isnan(y) or utility.isinf(y) or y == nil) and 0) or y
+  assert((y % self.size) < #self.permtable, tostring(y) .. ", " .. tostring(self.size))
+  return self.grid[(x + self.permtable[y % self.size]) % self.size]
 end
 
-local function dotGrid(permtable, grid, size, gx, gy, x, y)
+function perlin:dotGrid(gx, gy, x, y)
   local dx = x - gx
   local dy = y - gy
-  local point = get(permtable, grid, size, gx, gy) or { 0, 0 }
+  local point = self:get(gx, gy) or { 0, 0 }
   return dx * point[1] + dy * point[2]
 end
 
 function perlin.create(size)
-  local p = {}
-  p.size = size or 256
-  p.grid = generateGradientGrid(p.size)
-  p.permtable = generatePermtable(p.size)
-  setmetatable(p, { __index = perlin })
-  return p
+  local self = setmetatable({}, { __index = perlin })
+  self.size = size or 256
+  self.grid = generateGradientGrid(self.size)
+  self.permtable = generatePermtable(self.size)
+  return self
 end
 
 function perlin:generate(x, y)
@@ -60,11 +64,11 @@ function perlin:generate(x, y)
   end
   local sx = weight(x - x1)
   local sy = weight(y - y1)
-  local n1 = dotGrid(self.permtable, self.grid, self.size, x1, y1, x, y)
-  local n2 = dotGrid(self.permtable, self.grid, self.size, x2, y1, x, y)
+  local n1 = self:dotGrid(x1, y1, x, y)
+  local n2 = self:dotGrid(x2, y1, x, y)
   local ix1 = lerp(n1, n2, sx)
-  n1 = dotGrid(self.permtable, self.grid, self.size, x1, y2, x, y)
-  n2 = dotGrid(self.permtable, self.grid, self.size, x2, y2, x, y)
+  n1 = self:dotGrid(x1, y2, x, y)
+  n2 = self:dotGrid(x2, y2, x, y)
   local ix2 = lerp(n1, n2, sx)
   return lerp(ix1, ix2, sy)
 end

@@ -33,18 +33,14 @@ function genetic.tournament(size, p, fitnessfn, population)
   return chosen[1]
 end
 
-function genetic.splice(parent1, parent2, p)
-  p = p or 0.3
-
+function genetic.splice(parent1, parent2)
   local t1 = tree.create(parent1)
   local t2 = tree.create(parent2)
 
   local loc1 = t1:getRandomNode()
   local loc2 = t2:getRandomNode()
-  print("loc1: " .. loc1)
   local subtree1 = t1:getAt(loc1)
   local subtree2 = t2:getAt(loc2)
-  print("subtree1: {{{\n" .. serpent.line(subtree1) .. "\n}}}\n")
   return t1:setAt(loc1, subtree2), t2:setAt(loc2, subtree1)
 end
 

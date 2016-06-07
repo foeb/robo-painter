@@ -1,6 +1,6 @@
 
 local perlin = require "perlin"
-local cb = require "lib/cranberry/cranberry"
+local utility = require "utility"
 
 local language = {}
 
@@ -155,13 +155,19 @@ function language.interpret(tree, x, y)
     assert(op ~= nil, "Operation not found: " .. ops)
     local a1 = language.interpret(tree[2], x, y)
     local a2 = language.interpret(tree[3], x, y)
-    return op.fun(x, y, a1, a2)
+    local result = op.fun(x, y, a1, a2)
+    if utility.isinf(result) or utility.isnan(result) then
+      result = math.random()
+    end
+    return result
   else
     return tree
   end
 end
 
-function language.generateTree(maxdepth)
+function language.generateTree(maxdepth, seed)
+  seed = seed or os.time()
+  math.randomseed(seed)
   local operations = language.getOperations()
   local function recurse(depth)
     if depth >= maxdepth then
