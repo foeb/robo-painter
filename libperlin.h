@@ -22,9 +22,17 @@ int luaopen_libperlin(lua_State *L)
     return 1;
 }
 
+/* NOT_KOSHER: is 0 if x is NaN or Inf */
+#define NOT_KOSHER(x) (isnan(x) || isinf(x))
+#define KOSHER(x) (!NOT_KOSHER(x))
+
+/* MAKE_KOSHER: set x to 1.0 if x is NaN or Inf */
+#define MAKE_KOSHER(x) (NOT_KOSHER(x) ? (x) = 1 : (x))
+
 /* PERLIN_WEIGHT: the weight function for perlin_generate. This polynomial has
  * a continuous second derivative everywhere. */
-#define PERLIN_WEIGHT(t) (6.0 * t*t*t*t*t - 15.0 * t*t*t*t + 10.0 * t*t*t)
+/* #define PERLIN_WEIGHT(t) (6.0 * pow(t, 5) - 15.0 * pow(t, 4) + 10.0 * pow(t, 3)) */
+#define PERLIN_WEIGHT(t) (3.0 * t*t - 2.0 * t*t*t)
 
 /* PERLIN_SIZE: the length of perlin_permtable and perlin_gradient_grid */
 #define PERLIN_SIZE 256
@@ -43,7 +51,7 @@ int perlin_permtable[PERLIN_SIZE] = {
     112,76,236,191,172,69,183,9,27,18,125,227,182,144,166,77,
     186,88,130,211,170,10,37,7,118,74,160,23,58,221,222,180,
     208,137,231,40,119,242,108,111,59,249,43,30,196,207,252,135,
-    20,79,198,105,29,255,3,100,143,24,256,194,82,157,54,48,
+    20,79,198,105,29,255,3,100,143,24,0,194,82,157,54,48,
     149,13,115,117,96,25,174,178,141,19,126,128,38,230,138,102,
     244,55,120,93,109,152,107,218,67,66,92,153,15,123,254,214
 };
@@ -303,7 +311,8 @@ double perlin_gradient_grid[PERLIN_SIZE][2] = {
     {-0.76483217181566,-0.64422957783366},
     {-0.98105065509096,-0.19375141843504},
     {0.43333008381859,-0.90123528473855},
-    {0.96693243823743,-0.25503266434756}
+    {0.96693243823743,-0.25503266434756},
+    {-0.82885192053475,-0.55946804540193}
 };
 
 #endif

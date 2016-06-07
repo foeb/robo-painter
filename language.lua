@@ -1,10 +1,8 @@
 
-local perlin = require "perlin"
+local perlin = require "libperlin"
 local utility = require "utility"
 
 local language = {}
-
-local noise = perlin.create()
 
 language.operations = {
   add = {
@@ -111,7 +109,7 @@ language.operations = {
   perlin = {
     fun = function(x, y, a)
       a = a or math.pi/2
-      return noise:generate(x * a, y * a)
+      return perlin.generate(x * a, y * a)
     end,
     args = 1
   },
