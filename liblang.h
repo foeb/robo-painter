@@ -13,36 +13,42 @@
 #include "libtree.h"
 //#include "libperlin.h"
 
+extern double perlin_generate(double, double);
+
 typedef uint_fast8_t lang_word_t;
 
-double lang_apply_fun(lang_word_t fun, double x, double y, double a, double b);
+double lang_apply_fun(lang_word_t word, double x, double y, double a, double b);
 lang_word_t lang_random_terminal();
 lang_word_t lang_random_word();
-int lang_get_degree(lang_word_t fun);
+int lang_get_degree(lang_word_t word);
 int lang_interpret_fn(int nvalues, tree_node_t *values, int values_top, 
                         double *results, int results_top);
-double *lang_interpret(lang_word_t *exp, int exp_length, double x, double y);
+double lang_interpret(lang_word_t *exp, int exp_length, double x, double y);
 int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
 void lang_print_exp(lang_word_t *exp, int exp_length);
 
 typedef struct {
-  lang_word_t *words;
   int length;
   int seed;
+  lang_word_t words[1];
 } l_lang_exp;
 
 int l_lang_generate_exp(lua_State *L);
+int l_lang_to_exp(lua_State *L);
 int l_lang_interpret(lua_State *L);
 int l_lang_print_exp(lua_State *L);
 
 const struct luaL_Reg liblang[] = {
   { "generate", l_lang_generate_exp },
   { "print", l_lang_print_exp },
+  { "to_exp", l_lang_to_exp },
+  { "interpret", l_lang_interpret },
   { NULL, NULL }
 };
 
 int luaopen_liblang(lua_State *L)
 {
+  luaL_newmetatable(L, "lang.exp");
   luaL_newlib(L, liblang);
   return 1;
 }
@@ -51,7 +57,8 @@ int luaopen_liblang(lua_State *L)
 #define PI 3.1415926
 #define HALF_PI 1.57079632
 
-#define LANG_TOTAL_WORDS    0x19
+/* Not including LANG_WORD_A and LANG_WORD_B for the time-being */
+#define LANG_TOTAL_WORDS    0x17
 
 #define LANG_WORD_X         0x00
 #define LANG_WORD_Y         0x01

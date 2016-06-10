@@ -25,8 +25,8 @@ int tree_geti_degree(tree_t *t, int index);
 tree_t *tree_seti(tree_t *t, int index, tree_node_t value, int degree);
 int tree_random_index(tree_t *t);
 
-double *tree_map(tree_t *t, 
+double tree_map(tree_t *t, 
              int (*fun)(int nvalues, tree_node_t *values, int values_top, 
-                      double *results, int results_top));
+                      double *results, int results_top), int do_average);
 
 #endif

@@ -9,6 +9,9 @@
 
 #include "kosher.h"
 
+/* shouldn't be necessary, but it is */
+extern int abs(int);
+
 double perlin_generate(double x, double y);
 int l_perlin_generate(lua_State *L);
 
