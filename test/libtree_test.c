@@ -1,6 +1,8 @@
 #include "minunit.h"
 #include "../libtree.h"
 
+#include <stdio.h>
+
 
 char *test_tree_create_empty()
 {
@@ -46,12 +48,11 @@ char *test_tree_clone()
     return NULL;
 }
 
-int eval_test_id_fn(tree_node_t *values, int nvalues, int stack_top, tree_node_t *results)
+int eval_test_id_fn(int nvalues, tree_node_t *values, int values_top, 
+        double *results, int results_top)
 {
-    for (int i = stack_top - nvalues; i < stack_top; ++i) {
-        results[i - stack_top + nvalues] = values[i];
-    }
-    return nvalues;
+    results[results_top++] = values[values_top - 1];
+    return results_top;
 }
 
 char *test_tree_eval_id()
@@ -60,22 +61,22 @@ char *test_tree_eval_id()
     int degrees[5] = { 0, 0, 2, 0, 2 };
     tree_node_t nodes[5] = { 1, 2, 3, 4, 5 };
     tree_t *tree = tree_create(nodes, degrees, length);
-    tree_t *new_tree = tree_eval(tree, eval_test_id_fn);
+    double *new_array = tree_map(tree, eval_test_id_fn);
     for (int i = 0; i < length; ++i) {
-        mu_assert("The trees have the same elements in their nodes array", 
-                    tree->nodes[i] == new_tree->nodes[i]);
+        mu_assert("id: The trees have the same elements in their nodes array", 
+                    tree->nodes[i] == ((tree_node_t) new_array[i]));
     }
     return NULL;
 }
 
-int eval_test_mul_fn(tree_node_t *values, int nvalues, int stack_top, tree_node_t *results)
+int eval_test_mul_fn(int nvalues, tree_node_t *values, int values_top, 
+        double *results, int results_top)
 {
-    int acc = 1;
-    for (int i = stack_top - nvalues; i < stack_top; ++i) {
-        acc *= values[i];
+    if (results_top == 0) {
+        results[results_top++] = 1;
     }
-    results[0] =  acc;
-    return 1;
+    results[results_top - 1] *= values[values_top - 1];
+    return results_top;
 }
 
 char *test_tree_eval_mul()
@@ -84,9 +85,9 @@ char *test_tree_eval_mul()
     int degrees[5] = { 0, 0, 2, 0, 2 };
     tree_node_t nodes[5] = { 1, 2, 3, 4, 5 };
     tree_t *tree = tree_create(nodes, degrees, length);
-    tree_t *new_tree = tree_eval(tree, eval_test_mul_fn);
-    mu_assert("The first element of the nodes is the product of the nodes",
-                new_tree->nodes[0] == 1*2*3*4*5);
+    double *new_array = tree_map(tree, eval_test_mul_fn);
+    mu_assert("mul: The first element of the nodes is the product of the nodes",
+                new_array[0] == 1*2*3*4*5);
     return NULL;
 }
 

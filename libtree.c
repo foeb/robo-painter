@@ -42,18 +42,6 @@ void tree_free(tree_t *t)
     free(t);
 }
 
-void tree_print(tree_t *t)
-{
-    for (int i = 0; i < t->length; ++i) {
-        printf("%4i", t->degrees[i]);
-    }
-    printf("\n");
-    for (int i = 0; i < t->length; ++i) {
-        printf("%4x", t->nodes[i]);
-    }
-    printf("\n");
-}
-
 /* -------------------- Setters and Getters -------------------- */
 
 tree_node_t tree_geti(tree_t *t, int index)
@@ -78,28 +66,27 @@ int tree_random_index(tree_t *t)
     return rand() % t->length;
 }
 
-/* tree_eval: Evaluates fun at each node of the tree, given access to their
- * children. Allocates memory for a new tree less than or equal to the size 
- * of t, however the degrees field will be filled with zeros.
+/* tree_map: Evaluates fun at each node of the tree, given access to their
+ * children. Allocates memory for a new array of doubles with length less than 
+ * or equal to the length of t.
  * See TAOCP 2.2.3, Algorithm F. */
-/* FIXME  */
-tree_t *tree_eval(tree_t *t, 
-                    int (*fun)(tree_node_t *values, int nvalues, int stack_top, tree_node_t *results))
+double *tree_map(tree_t *t,
+             int (*fun)(int nvalues, tree_node_t *values, int values_top,
+                      double *results, int results_top))
 {
     tree_node_t *stack = calloc(t->length, sizeof(tree_node_t));
-    tree_node_t *aux_stack = calloc(t->length, sizeof(tree_node_t));
-    int stack_top = 0;
-    if (stack != NULL && aux_stack != NULL) {
+    double *results_stack = calloc(t->length, sizeof(double));
+    int values_top = 0;
+    int results_top = 0;
+    if (stack != NULL && results_stack != NULL) {
         for (int i = 0; i < t->length; ++i) {
-            stack[stack_top++] = t->nodes[i];
-            int result_len = fun(stack, t->degrees[i] + 1, stack_top, aux_stack);
-            stack_top -= t->degrees[i] + 1;
-            assert(stack_top >= 0);
-            for (int j = 0; j < result_len; ++j) {
-                stack[stack_top++] = aux_stack[j];
-            }
+            stack[values_top++] = t->nodes[i];
+            results_top = fun(t->degrees[i]+1, stack, values_top, results_stack, results_top);
+            values_top -= t->degrees[i];
+            assert(values_top >= 0);
         }
     }
-    stack = realloc(stack, sizeof(tree_node_t) * stack_top);
-    return tree_create(stack, calloc(stack_top, sizeof(int)), stack_top);
+    free(stack);
+    results_stack = realloc(results_stack, sizeof(double) * (results_top + 1));
+    return results_stack;
 }
