@@ -6,4 +6,4 @@ expressions until time runs out or we find something acceptable.
 
 ### LICENSE
 This project is released into the public domain with the help of CC0. 
-See COPYING for more information.
+See `COPYING` for more information.
