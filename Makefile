@@ -5,8 +5,8 @@ CFLAGS_EXTRA=-Wall -g -O0
 CFLAGS=$(CFLAGS_EXTRA) $(LLUA) $(LMATH)
 SCFLAGS=-shared -fPIC
 SOBJS=libperlin.so liblang.so
-TESTS=test/libtree_test.c
-TESTDEPS=libtree.o
+TESTS=
+TESTDEPS=
 
 
 default: all
