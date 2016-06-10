@@ -5,5 +5,5 @@
 	path = lib/serpent
 	url = https://github.com/pkulchenko/serpent
 [submodule "lib/lua-gd"]
-  path = lib/lua-gd
-  url = https://github.com/ittner/lua-gd
+	path = lib/lua-gd
+	url = https://github.com/ittner/lua-gd
