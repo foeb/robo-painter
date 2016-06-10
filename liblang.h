@@ -10,28 +10,31 @@
 #include <lualib.h>
 
 #include "kosher.h"
-#include "libtree.h"
 //#include "libperlin.h"
 
 extern double perlin_generate(double, double);
 
 typedef uint_fast8_t lang_word_t;
 
-double lang_apply_fun(lang_word_t word, double x, double y, double a, double b);
-lang_word_t lang_random_terminal();
-lang_word_t lang_random_word();
-int lang_get_degree(lang_word_t word);
-int lang_interpret_fn(int nvalues, tree_node_t *values, int values_top, 
-                        double *results, int results_top);
-double lang_interpret(lang_word_t *exp, int exp_length, double x, double y);
-int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
-void lang_print_exp(lang_word_t *exp, int exp_length);
-
 typedef struct {
   int length;
   int seed;
   lang_word_t words[1];
 } l_lang_exp;
+
+double lang_apply_fun(lang_word_t word, double x, double y, double a, double b);
+lang_word_t lang_random_terminal();
+lang_word_t lang_random_word();
+int lang_get_degree(lang_word_t word);
+double lang_map_exp(l_lang_exp *t,
+             int (*fun)(int nvalues, lang_word_t *values, int values_top,
+                      double *results, int results_top, double x, double y), 
+             int do_average, double x, double y);
+int lang_interpret_fn(int nvalues, lang_word_t *values, int values_top, 
+                        double *results, int results_top, double x, double y);
+double lang_interpret(l_lang_exp *exp, double x, double y);
+int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
+void lang_print_exp(lang_word_t *exp, int exp_length);
 
 int l_lang_generate_exp(lua_State *L);
 int l_lang_to_exp(lua_State *L);

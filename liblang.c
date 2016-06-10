@@ -138,38 +138,80 @@ lang_word_t lang_random_terminal()
     return rand() % 4;
 }
 
-/* lang_current_x and lang_current_y are a way for us to pass the x and y
- * arguments to lang_interpret_fn, since C99 doesn't have easy ways of making
- * anonymous, first class functions. */
-double lang_current_x = 0.0;
-double lang_current_y = 0.0;
-
-/* lang_interpret_fn: is passed to tree_map by lang_interpret. */
-int lang_interpret_fn(int nvalues, tree_node_t *values, int values_top, 
-                        double *results, int results_top)
+double average(double *values, int length)
 {
-    switch(nvalues) {
+    double acc = 0;
+    for (int i = 0; i < length; ++i) {
+        acc += values[i];
+    }
+    return acc/length;
+}
+
+/* lang_map_exp: Evaluates fun at each node of the tree, given access to their
+ * children. If do_average is nonzero, then lang_map_exp returns
+ * the average of all of the results. Otherwise, only the first result is returned.
+ * See TAOCP 2.2.3, Algorithm F. */
+double lang_map_exp(l_lang_exp *t,
+             int (*fun)(int nwords, lang_word_t *words, int words_top,
+                        double *results, int results_top, double x, double y),
+             int do_average, double x, double y)
+{
+    lang_word_t  *stack = calloc(t->length, sizeof(lang_word_t));
+    double *results_stack = calloc(t->length, sizeof(double));
+    int words_top = 0;
+    int results_top = 0;
+    int current_degree = 0;
+    double result = 0;
+    if (stack != NULL && results_stack != NULL) {
+        for (int i = 0; i < t->length; ++i) {
+            current_degree = lang_get_degree(t->words[i]);
+            stack[words_top++] = t->words[i];
+            results_top = 
+                fun(current_degree+1, stack, words_top, 
+                        results_stack, results_top, x, y);
+            words_top -= current_degree;
+            assert(words_top >= 0);
+        }
+
+        if (do_average) {
+            result = average(results_stack, results_top);
+        } else {
+            result = results_stack[0];
+        }
+    }
+
+    free(stack);
+    free(results_stack);
+
+    return result;
+}
+
+/* lang_interpret_fn: is passed to lang_map_exp by lang_interpret. */
+int lang_interpret_fn(int nwords, lang_word_t *words, int words_top, 
+                        double *results, int results_top, double x, double y)
+{
+    switch(nwords) {
         case 1:
             results[results_top++] = 
-                lang_apply_fun(values[values_top-1], 
-                                    lang_current_x, lang_current_y, 0, 0);
+                lang_apply_fun(words[words_top-1], 
+                                    x, y, 0, 0);
             break;
         case 2:
             results[results_top - 1] =
-                lang_apply_fun(values[values_top-1],
-                                    lang_current_x, lang_current_y, 
+                lang_apply_fun(words[words_top-1],
+                                    x, y, 
                                     results[results_top - 1], 0);
             break;
         case 3:
             results[results_top - 2] =
-                lang_apply_fun(values[values_top-1],
-                                    lang_current_x, lang_current_y, 
+                lang_apply_fun(words[words_top-1],
+                                    x, y, 
                                     results[results_top - 2], 
                                     results[results_top - 1]);
             --results_top;
             break;
         default:
-            printf("Invalid nvalues: %i, current value: %02x\n", nvalues, values[values_top-1]);
+            printf("Invalid nwords: %i, current value: %02x\n", nwords, words[words_top-1]);
             assert(0);
             break;
     }
@@ -178,20 +220,9 @@ int lang_interpret_fn(int nvalues, tree_node_t *values, int values_top,
 
 /* lang_interpret: evaluates an array of words exp of length exp_length at
  * location (x, y). */
-double lang_interpret(lang_word_t *exp, int exp_length, double x, double y)
+double lang_interpret(l_lang_exp *exp, double x, double y)
 {
-    int *degrees = calloc(exp_length, sizeof(int));
-    double result = 0;
-    lang_current_x = x;
-    lang_current_y = y;
-    if (degrees != NULL) {
-        for (int i = 0; i < exp_length; ++i) {
-            degrees[i] = lang_get_degree(exp[i]);
-        }
-        result = tree_map(tree_create(exp, degrees, exp_length),
-                                lang_interpret_fn, 1);
-    }
-    free(degrees);
+    double result = lang_map_exp(exp, lang_interpret_fn, x, y, 1);
     return MAKE_KOSHER(result);
 }
 
@@ -311,7 +342,7 @@ int l_lang_interpret(lua_State *L)
     double x = luaL_checknumber(L, 2);
     double y = luaL_checknumber(L, 3);
 
-    double result = lang_interpret(exp->words, exp->length, x, y);
+    double result = lang_interpret(exp, x, y);
     lua_pushnumber(L, result);
 
     return 1;

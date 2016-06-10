@@ -12,15 +12,11 @@ TESTDEPS=libtree.o
 default: all
 all: $(SOBJS)
 
-#libterrain.so: libperlin.c liblang.c libtree.c libterrain.c
-#	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $^
-
-
 libperlin.so: libperlin.c libperlin.h
 	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $<
 
-liblang.so: liblang.c liblang.h libtree.c
-	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $< libtree.c libperlin.c
+liblang.so: liblang.c liblang.h libperlin.c libperlin.h
+	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $< libperlin.c
 
 .PHONY: clean test
 clean:
