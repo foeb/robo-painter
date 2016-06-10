@@ -8,6 +8,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include "kosher.h"
+
 static double perlin_generate(double x, double y);
 static int l_perlin_generate(lua_State *L);
 
@@ -21,13 +23,6 @@ int luaopen_libperlin(lua_State *L)
     luaL_newlib(L, libperlin);
     return 1;
 }
-
-/* NOT_KOSHER: is 0 if x is NaN or Inf */
-#define NOT_KOSHER(x) (isnan(x) || isinf(x))
-#define KOSHER(x) (!NOT_KOSHER(x))
-
-/* MAKE_KOSHER: set x to 1.0 if x is NaN or Inf */
-#define MAKE_KOSHER(x) (NOT_KOSHER(x) ? (x) = 1 : (x))
 
 /* PERLIN_WEIGHT: the weight function for perlin_generate. This polynomial has
  * a continuous second derivative everywhere. */
