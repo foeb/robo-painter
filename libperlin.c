@@ -1,6 +1,6 @@
 #include "libperlin.h"
 
-const int perlin_permtable[PERLIN_SIZE] = {
+int const perlin_permtable[PERLIN_SIZE] = {
     189,90,95,16,11,8,129,81,184,212,136,127,33,61,132,238,
     28,39,78,188,165,44,248,226,64,5,201,206,31,161,197,199,
     239,56,210,245,60,98,91,215,62,202,103,6,243,17,68,253,
@@ -19,7 +19,7 @@ const int perlin_permtable[PERLIN_SIZE] = {
     244,55,120,93,109,152,107,218,67,66,92,153,15,123,254,214
 };
 
-const double perlin_gradient_grid[PERLIN_SIZE][2] = {
+double const perlin_gradient_grid[PERLIN_SIZE][2] = {
     {-0.94821585776689,-0.31762664730688},
     {0.913766863868,-0.40623899184697},
     {-0.99938256202423,0.03513537707041},
