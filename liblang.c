@@ -183,6 +183,9 @@ double lang_map_exp(l_lang_exp *t,
     if (stack != NULL && results_stack != NULL) {
         for (int i = 0; i < t->length; ++i) {
             current_degree = lang_get_degree(t->words[i]);
+            if (words_top < current_degree) {
+                current_degree = words_top;
+            }
             stack[words_top++] = t->words[i];
             results_top = 
                 fun(current_degree+1, stack, words_top, 
@@ -330,8 +333,8 @@ int l_lang_to_exp(lua_State *L)
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     new_exp->seed = 0;
     new_exp->length = length;
-    for (int i = 0; i <= length; ++i) {
-        lua_rawgeti(L, 1, i);
+    for (int i = 0; i < length; ++i) {
+        lua_rawgeti(L, 1, i+1);
         new_exp->words[i] = (lang_word_t)(lua_tointeger(L, -1));
         lua_pop(L, 1);
     }
