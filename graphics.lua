@@ -11,10 +11,10 @@ end
 
 function expToString(exp, seed, maxdepth, width, height)
   result = "return {\n" ..
-    "  seed = " .. seed  .. "\n" ..
-    "  maxdepth = " .. maxdepth .. "\n" ..
-    "  width = " .. width .. "\n" ..
-    "  height = " .. height .. "\n" ..
+    "  seed = " .. seed  .. ",\n" ..
+    "  maxdepth = " .. maxdepth .. ",\n" ..
+    "  width = " .. width .. ",\n" ..
+    "  height = " .. height .. ",\n" ..
     "  exp = {\n    "
   for i = 1, liblang.length(exp) do
     if (i-1) % 16 == 0 and i ~= 1 then result = result .. '\n    ' end
