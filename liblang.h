@@ -34,13 +34,18 @@ int lang_interpret_fn(int nwords, lang_word_t *words, int words_top,
 double lang_interpret(l_lang_exp *exp, double x, double y);
 int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
 void lang_print_exp(lang_word_t *exp, int exp_length);
+int lang_get_beginning(l_lang_exp *exp, int i);
+
+size_t lang_exp_size(size_t length);
 
 int l_lang_generate_exp(lua_State *L);
 int l_lang_to_exp(lua_State *L);
 int l_lang_interpret(lua_State *L);
 int l_lang_print_exp(lua_State *L);
 int l_lang_geti(lua_State *L);
+int l_lang_get_beginning(lua_State *L);
 int l_lang_length(lua_State *L);
+int l_lang_splice(lua_State *L);
 
 const struct luaL_Reg liblang[] = {
   { "generate", l_lang_generate_exp },
@@ -48,7 +53,9 @@ const struct luaL_Reg liblang[] = {
   { "to_exp", l_lang_to_exp },
   { "interpret", l_lang_interpret },
   { "geti", l_lang_geti },
+  { "get_beginning", l_lang_get_beginning },
   { "length", l_lang_length },
+  { "splice", l_lang_splice },
   { NULL, NULL }
 };
 

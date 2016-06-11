@@ -300,6 +300,27 @@ void lang_print_exp(lang_word_t *exp, int exp_length)
     printf("\n");
 }
 
+/* lang_get_beginning: returns the index of the left most element of the
+ * subtree whose head is at i, */
+int lang_get_beginning(l_lang_exp *exp, int i)
+{
+    int degree = lang_get_degree(exp->words[i]);
+    if (i <= 0 || degree == 0) {
+        return i;
+    } else {
+        int acc = i;
+        for (int j = 0; j < degree; ++j) {
+            acc = lang_get_beginning(exp, acc - 1);
+        }
+        return acc;
+    }
+}
+
+size_t lang_exp_size(size_t length)
+{
+    return sizeof(l_lang_exp) + sizeof(lang_word_t) * length;
+}
+
 /* ---------- Lua Interface---------- */
 
 /* l_lang_generate_exp: the lua interface to lang_generate_exp. Takes two
@@ -309,7 +330,7 @@ int l_lang_generate_exp(lua_State *L)
     int seed = luaL_checkinteger(L, 1);
     int maxdepth = luaL_checkinteger(L, 2);
     int maxlength = lang_generate_exp_maxlength(maxdepth);
-    size_t nbytes = sizeof(l_lang_exp) + sizeof(lang_word_t) * maxlength;
+    size_t nbytes = lang_exp_size(maxlength);
     l_lang_exp *new_exp = 
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     int length = lang_generate_exp(seed, maxdepth, new_exp->words, 0);
@@ -328,7 +349,7 @@ int l_lang_to_exp(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
     int length = luaL_len(L, 1);
-    size_t nbytes = sizeof(l_lang_exp) + sizeof(lang_word_t) * length;
+    size_t nbytes = lang_exp_size(length);
     l_lang_exp *new_exp = 
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     new_exp->seed = 0;
@@ -375,7 +396,17 @@ int l_lang_geti(lua_State *L)
     l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
     int i = luaL_checkinteger(L, 2);
     luaL_argcheck(L, 0 < i && i <= exp->length, 2, "index out of range");
-    lua_pushnumber(L, exp->words[i]);
+    lua_pushnumber(L, exp->words[i-1]);
+    return 1;
+}
+
+/* l_lang_get_beginning: lua interface to lang_get_beginning */
+int l_lang_get_beginning(lua_State *L)
+{
+    l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
+    int i = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, 0 < i && i <= exp->length, 2, "index out of range");
+    lua_pushnumber(L, lang_get_beginning(exp, i-1) + 1);
     return 1;
 }
 
@@ -385,4 +416,82 @@ int l_lang_length(lua_State *L)
     l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
     lua_pushnumber(L, exp->length);
     return 1;
+}
+
+/* l_lang_splice: returns two expressions where the subtree at exp1[i1] 
+ * is swapped with the subtree at exp2[i2]. */
+int l_lang_splice(lua_State *L)
+{
+    /* Arguments */
+    l_lang_exp *exp1 = luaL_checkudata(L, 1, "lang.exp");
+    l_lang_exp *exp2 = luaL_checkudata(L, 2, "lang.exp");
+    int i1 = luaL_checkinteger(L, 3) - 1;
+    int i2 = luaL_checkinteger(L, 4) - 1;
+
+    /* Variables */
+    int begin1 = lang_get_beginning(exp1, i1);
+    int begin2 = lang_get_beginning(exp2, i2);
+    int sublength1 = i1 - begin1 + 1;
+    int sublength2 = i2 - begin2 + 1;
+    int length1 = begin1 + sublength2 + exp1->length - i1 - 1;
+    int length2 = begin2 + sublength1 + exp2->length - i2 - 1;
+    /*
+    int length1 = exp1->length - sublength1 + sublength2;
+    int length2 = exp2->length - sublength2 + sublength1;
+    */
+
+    /* Adjust from 1-index to 0-index base */
+    /*
+    --begin1;
+    --begin2;
+    --i1;
+    --i2;
+    */
+
+    /* Buffers */
+    /*
+    lang_word_t *buf1 = calloc(length1, sizeof(lang_word_t));
+    lang_word_t *buf2 = calloc(length2, sizeof(lang_word_t));
+    */
+
+    /* New expressions */
+    l_lang_exp *new_exp1 = 
+        (l_lang_exp *)lua_newuserdata(L, lang_exp_size(length1));
+    new_exp1->seed = 0;
+    new_exp1->length = length1;
+    luaL_getmetatable(L, "lang.exp");
+    lua_setmetatable(L, -2);
+
+    l_lang_exp *new_exp2 = 
+        (l_lang_exp *)lua_newuserdata(L, lang_exp_size(length2));
+    new_exp2->seed = 0;
+    new_exp2->length = length2;
+    luaL_getmetatable(L, "lang.exp");
+    lua_setmetatable(L, -2);
+
+    /* Before */
+    for (int i = 0; i < begin1; ++i) {
+        new_exp1->words[i] = exp1->words[i];
+    }
+    for (int i = 0; i < begin2; ++i) {
+        new_exp2->words[i] = exp2->words[i];
+    }
+
+    /* During */
+    for (int i = 0; i < sublength2; ++i) {
+        new_exp1->words[i + begin1] = exp2->words[i + begin2];
+    }
+    for (int i = 0; i < sublength1; ++i) {
+        new_exp2->words[i + begin2] = exp1->words[i + begin1];
+    }
+
+    /* After */
+    for (int i = 0; i < exp1->length - i1; ++i) {
+        new_exp1->words[i + begin1 + sublength2] = exp1->words[i + i1 + 1];
+    }
+    for (int i = 0; i < exp2->length - i2; ++i) {
+        new_exp2->words[i + begin2 + sublength1] = exp2->words[i + i2 + 1];
+    }
+
+    return 2;
 }
