@@ -1,5 +1,5 @@
 *.o
 *.so
 test/test
-favorites/*.png
+favorites/*
 images/*
