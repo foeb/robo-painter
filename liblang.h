@@ -7,7 +7,6 @@
 
 #include <lua.h>
 #include <lauxlib.h>
-#include <lualib.h>
 
 #include "kosher.h"
 //#include "libperlin.h"
@@ -27,10 +26,10 @@ lang_word_t lang_random_terminal();
 lang_word_t lang_random_word();
 int lang_get_degree(lang_word_t word);
 double lang_map_exp(l_lang_exp *t,
-             int (*fun)(int nvalues, lang_word_t *values, int values_top,
-                      double *results, int results_top, double x, double y), 
+             int (*fun)(int nwords, lang_word_t *words, int words_top,
+                        double *results, int results_top, double x, double y),
              int do_average, double x, double y);
-int lang_interpret_fn(int nvalues, lang_word_t *values, int values_top, 
+int lang_interpret_fn(int nwords, lang_word_t *words, int words_top, 
                         double *results, int results_top, double x, double y);
 double lang_interpret(l_lang_exp *exp, double x, double y);
 int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
@@ -40,12 +39,16 @@ int l_lang_generate_exp(lua_State *L);
 int l_lang_to_exp(lua_State *L);
 int l_lang_interpret(lua_State *L);
 int l_lang_print_exp(lua_State *L);
+int l_lang_geti(lua_State *L);
+int l_lang_length(lua_State *L);
 
 const struct luaL_Reg liblang[] = {
   { "generate", l_lang_generate_exp },
   { "print", l_lang_print_exp },
   { "to_exp", l_lang_to_exp },
   { "interpret", l_lang_interpret },
+  { "geti", l_lang_geti },
+  { "length", l_lang_length },
   { NULL, NULL }
 };
 
@@ -61,7 +64,7 @@ int luaopen_liblang(lua_State *L)
 #define HALF_PI 1.57079632
 
 /* Not including LANG_WORD_A and LANG_WORD_B for the time-being */
-#define LANG_TOTAL_WORDS    0x17
+#define LANG_TOTAL_WORDS    0x18
 
 #define LANG_WORD_X         0x00
 #define LANG_WORD_Y         0x01
@@ -86,8 +89,12 @@ int luaopen_liblang(lua_State *L)
 #define LANG_WORD_SQRT      0x14
 #define LANG_WORD_LGAMMA    0x15
 #define LANG_WORD_HYPBOLIC  0x16
-#define LANG_WORD_A         0x17
-#define LANG_WORD_B         0x18
+#define LANG_WORD_PERLIN2   0x17
+#define LANG_WORD_A         0x18
+#define LANG_WORD_B         0x19
+
+#define LANG_WORD_IS_CONST(x) ((x) & 0x80)
+#define LANG_WORD_TO_CONST(x) ((x) & 0x7F)
 
 #define LANG_FUN_ADD(x,y,a,b) ((a) + (b))
 #define LANG_FUN_SUB(x,y,a,b) ((a) - (b))
@@ -111,9 +118,9 @@ int luaopen_liblang(lua_State *L)
 #define LANG_FUN_X(x,y,a,b) (x)
 #define LANG_FUN_Y(x,y,a,b) (y)
 #define LANG_FUN_PERLIN(x,y,a,b) \
-      ((a) == 0 ? perlin_generate((x) / HALF_PI, (y) / HALF_PI) \
-                : perlin_generate((x) / (a), (y) / (a)))
-#define LANG_FUN_HYPBOLIC(x,y,a,b) ((a) == 0 && (b) == 0 ? \
+      ((a) == 0 ? perlin_generate((x) / (5 * PI), (y) / (5 * PI)) \
+                : perlin_generate((x) / ((a) * PI), (y) / ((a) * PI)))
+#define LANG_FUN_HYPBOLIC(x,y,a,b) ((a) == 0 || (b) == 0 ? \
       (x)*(x) - (y)*(y) : ((x)*(x))/((a)*(a)) - ((y)*(y))/((b)*(b)))
 #define LANG_FUN_A(x,y,a,b) (a)
 #define LANG_FUN_B(x,y,a,b) (b)

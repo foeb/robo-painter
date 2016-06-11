@@ -5,6 +5,11 @@ double lang_apply_fun(lang_word_t word, double x, double y, double a, double b)
 {
     MAKE_KOSHER(a);
     MAKE_KOSHER(b);
+
+    if (LANG_WORD_IS_CONST(word)) {
+        return LANG_WORD_TO_CONST(word);
+    }
+
     switch(word) {
         case LANG_WORD_X:
             return LANG_FUN_X(x, y, a, b);
@@ -52,6 +57,8 @@ double lang_apply_fun(lang_word_t word, double x, double y, double a, double b)
             return LANG_FUN_LGAMMA(x, y, a, b);
         case LANG_WORD_HYPBOLIC:
             return LANG_FUN_HYPBOLIC(x, y, a, b);
+        case LANG_WORD_PERLIN2:
+            return LANG_FUN_PERLIN(x, y, a, b);
         case LANG_WORD_A:
             return LANG_FUN_A(x, y, a, b);
         case LANG_WORD_B:
@@ -67,6 +74,10 @@ double lang_apply_fun(lang_word_t word, double x, double y, double a, double b)
  * by word takes, not counting x and y. */
 int lang_get_degree(lang_word_t word)
 {
+    if (LANG_WORD_IS_CONST(word)) {
+        return 0;
+    }
+
     switch(word) {
         case LANG_WORD_X:
             return 0;
@@ -114,6 +125,8 @@ int lang_get_degree(lang_word_t word)
             return 1;
         case LANG_WORD_HYPBOLIC:
             return 2;
+        case LANG_WORD_PERLIN2:
+            return 1;
         case LANG_WORD_A:
             return 2;
         case LANG_WORD_B:
@@ -135,7 +148,12 @@ lang_word_t lang_random_word()
  * that takes no arguments other than x and y. */
 lang_word_t lang_random_terminal()
 {
-    return rand() % 4;
+    int result = rand() % 5;
+    if (result == 4) {
+        return (rand() & 0x7F) | 0x80;
+    } else {
+        return result;
+    }
 }
 
 double average(double *values, int length)
@@ -222,7 +240,7 @@ int lang_interpret_fn(int nwords, lang_word_t *words, int words_top,
  * location (x, y). */
 double lang_interpret(l_lang_exp *exp, double x, double y)
 {
-    double result = lang_map_exp(exp, lang_interpret_fn, x, y, 1);
+    double result = lang_map_exp(exp, lang_interpret_fn, 1, x, y);
     return MAKE_KOSHER(result);
 }
 
@@ -312,9 +330,9 @@ int l_lang_to_exp(lua_State *L)
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     new_exp->seed = 0;
     new_exp->length = length;
-    for (int i = 1; i <= length; ++i) {
+    for (int i = 0; i <= length; ++i) {
         lua_rawgeti(L, 1, i);
-        new_exp->words[i-1] = (lang_word_t)(lua_tointeger(L, -1));
+        new_exp->words[i] = (lang_word_t)(lua_tointeger(L, -1));
         lua_pop(L, 1);
     }
 
@@ -328,7 +346,7 @@ int l_lang_to_exp(lua_State *L)
  * interface to lang_print_exp. */
 int l_lang_print_exp(lua_State *L)
 {
-    l_lang_exp *exp = (l_lang_exp *)lua_touserdata(L, 1);
+    l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
     lang_print_exp(exp->words, exp->length);
     return 0;
 }
@@ -348,3 +366,20 @@ int l_lang_interpret(lua_State *L)
     return 1;
 }
 
+/* l_lang_geti: returns the word at location i (starting index at 1) */
+int l_lang_geti(lua_State *L)
+{
+    l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
+    int i = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, 0 < i && i <= exp->length, 2, "index out of range");
+    lua_pushnumber(L, exp->words[i]);
+    return 1;
+}
+
+/* l_lang_length: returns the length of the given exp */
+int l_lang_length(lua_State *L)
+{
+    l_lang_exp *exp = luaL_checkudata(L, 1, "lang.exp");
+    lua_pushnumber(L, exp->length);
+    return 1;
+}
