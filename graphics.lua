@@ -1,5 +1,3 @@
-package.path = package.path .. ";lib/?/?.lua;"
-
 local gd = require "gd"
 
 local cb = require "cranberry"
@@ -37,11 +35,13 @@ function generateAndSave(seed, maxdepth, width, height, dir)
     exp = liblang.generate(seed, maxdepth)
   end
 
+  --[[
   print("\twriting "  ..  seed)
   local txt = io.open(dir .. getName(seed, maxdepth, width, height)..".lua", "w+")
   print(expToString(exp, seed, maxdepth, width, height))
   txt:write(expToString(exp, seed, maxdepth, width, height))
   txt:close()
+  --]]
 
   print("\tinterpreting " .. seed)
   local expmap = {}

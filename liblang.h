@@ -9,6 +9,7 @@
 #include <lauxlib.h>
 
 #include "kosher.h"
+#include "compat.h"
 //#include "libperlin.h"
 
 extern double perlin_generate(double, double);
@@ -29,7 +30,7 @@ double lang_map_exp(l_lang_exp *t,
              int (*fun)(int nwords, lang_word_t *words, int words_top,
                         double *results, int results_top, double x, double y),
              int do_average, double x, double y);
-int lang_interpret_fn(int nwords, lang_word_t *words, int words_top, 
+int lang_interpret_fn(int nwords, lang_word_t *words, int words_top,
                         double *results, int results_top, double x, double y);
 double lang_interpret(l_lang_exp *exp, double x, double y);
 int lang_generate_exp(int seed, int maxdepth, lang_word_t *result, int alloc_new_result);
@@ -62,7 +63,8 @@ const struct luaL_Reg liblang[] = {
 int luaopen_liblang(lua_State *L)
 {
   luaL_newmetatable(L, "lang.exp");
-  luaL_newlib(L, liblang);
+  // luaL_newlib(L, liblang);
+  luaL_setfuncs(L, liblang, 0);
   return 1;
 }
 

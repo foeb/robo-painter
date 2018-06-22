@@ -1,29 +1,27 @@
 CC=gcc
-LLUA=-llua
-LMATH=-lm
-CFLAGS_EXTRA=-Wall -g -O0
-CFLAGS=$(CFLAGS_EXTRA) $(LLUA) $(LMATH)
+LUA=lua5.1
+CFLAGS := -Wall -g -O0
+CFLAGS += $(shell pkg-config --cflags lua5.1)
+LDFLAGS := -lm
+LDFLAGS += $(shell pkg-config  --libs lua5.1)
 SCFLAGS=-shared -fPIC -Wl,-E
 SOBJS=libperlin.so liblang.so
-TESTS=
-TESTDEPS=
 
+export LUA_PATH := $(CURDIR)/lib/cranberry/?.lua;$(CURDIR)/lib/serpent/src/?.lua
+export LUA_CPATH := $(CURDIR)/lib/lua-gd/?.so;$(CURDIR)/?.so
 
 default: all
 all: $(SOBJS)
 
 libperlin.so: libperlin.c libperlin.h
-	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) $(SCFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 liblang.so: liblang.c liblang.h libperlin.c libperlin.h
-	$(CC) $(SCFLAGS) $(CFLAGS) -o $@ $< libperlin.c
+	$(CC) $(SCFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< libperlin.c
 
-.PHONY: clean test
+.PHONY: clean run
 clean:
 	-rm $(SOBJS)
-	-rm $(TESTDEPS)
-	-rm test/test
 
-test: test/test.c $(TESTS) $(TESTDEPS)
-	$(CC) $(CFLAGS) -o test/test test/test.c $(TESTDEPS)
-	test/test
+run:
+	mkdir -p $(CURDIR)/images; $(LUA) graphics.lua

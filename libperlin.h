@@ -7,6 +7,7 @@
 #include <lauxlib.h>
 
 #include "kosher.h"
+#include "compat.h"
 
 /* shouldn't be necessary, but it is */
 extern int abs(int);
@@ -21,7 +22,8 @@ static const struct luaL_Reg libperlin[] = {
 
 int luaopen_libperlin(lua_State *L)
 {
-    luaL_newlib(L, libperlin);
+    // luaL_newlib(L, libperlin);
+    luaL_setfuncs(L, libperlin, 0);
     return 1;
 }
 

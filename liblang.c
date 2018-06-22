@@ -187,8 +187,8 @@ double lang_map_exp(l_lang_exp *t,
                 current_degree = words_top;
             }
             stack[words_top++] = t->words[i];
-            results_top = 
-                fun(current_degree+1, stack, words_top, 
+            results_top =
+                fun(current_degree+1, stack, words_top,
                         results_stack, results_top, x, y);
             words_top -= current_degree;
             assert(words_top >= 0);
@@ -208,26 +208,26 @@ double lang_map_exp(l_lang_exp *t,
 }
 
 /* lang_interpret_fn: is passed to lang_map_exp by lang_interpret. */
-int lang_interpret_fn(int nwords, lang_word_t *words, int words_top, 
+int lang_interpret_fn(int nwords, lang_word_t *words, int words_top,
                         double *results, int results_top, double x, double y)
 {
     switch(nwords) {
         case 1:
-            results[results_top++] = 
-                lang_apply_fun(words[words_top-1], 
+            results[results_top++] =
+                lang_apply_fun(words[words_top-1],
                                     x, y, 0, 0);
             break;
         case 2:
             results[results_top - 1] =
                 lang_apply_fun(words[words_top-1],
-                                    x, y, 
+                                    x, y,
                                     results[results_top - 1], 0);
             break;
         case 3:
             results[results_top - 2] =
                 lang_apply_fun(words[words_top-1],
-                                    x, y, 
-                                    results[results_top - 2], 
+                                    x, y,
+                                    results[results_top - 2],
                                     results[results_top - 1]);
             --results_top;
             break;
@@ -331,7 +331,7 @@ int l_lang_generate_exp(lua_State *L)
     int maxdepth = luaL_checkinteger(L, 2);
     int maxlength = lang_generate_exp_maxlength(maxdepth);
     size_t nbytes = lang_exp_size(maxlength);
-    l_lang_exp *new_exp = 
+    l_lang_exp *new_exp =
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     int length = lang_generate_exp(seed, maxdepth, new_exp->words, 0);
     new_exp->seed = seed;
@@ -348,9 +348,9 @@ int l_lang_generate_exp(lua_State *L)
 int l_lang_to_exp(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
-    int length = luaL_len(L, 1);
+    int length = lua_objlen(L, 1);
     size_t nbytes = lang_exp_size(length);
-    l_lang_exp *new_exp = 
+    l_lang_exp *new_exp =
         (l_lang_exp *)lua_newuserdata(L, nbytes);
     new_exp->seed = 0;
     new_exp->length = length;
@@ -418,7 +418,7 @@ int l_lang_length(lua_State *L)
     return 1;
 }
 
-/* l_lang_splice: returns two expressions where the subtree at exp1[i1] 
+/* l_lang_splice: returns two expressions where the subtree at exp1[i1]
  * is swapped with the subtree at exp2[i2]. */
 int l_lang_splice(lua_State *L)
 {
@@ -455,14 +455,14 @@ int l_lang_splice(lua_State *L)
     */
 
     /* New expressions */
-    l_lang_exp *new_exp1 = 
+    l_lang_exp *new_exp1 =
         (l_lang_exp *)lua_newuserdata(L, lang_exp_size(length1));
     new_exp1->seed = 0;
     new_exp1->length = length1;
     luaL_getmetatable(L, "lang.exp");
     lua_setmetatable(L, -2);
 
-    l_lang_exp *new_exp2 = 
+    l_lang_exp *new_exp2 =
         (l_lang_exp *)lua_newuserdata(L, lang_exp_size(length2));
     new_exp2->seed = 0;
     new_exp2->length = length2;
