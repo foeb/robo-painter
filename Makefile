@@ -23,5 +23,5 @@ liblang.so: liblang.c liblang.h libperlin.c libperlin.h
 clean:
 	-rm $(SOBJS)
 
-run:
+run: all
 	mkdir -p $(CURDIR)/images; $(LUA) graphics.lua
