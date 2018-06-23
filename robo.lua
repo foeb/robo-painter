@@ -71,7 +71,6 @@ function generateAndSave(seed, maxdepth, width, height, dir)
     end
 
     function toValid(y)
-<<<<<<< HEAD
       if y < 0 then
         return 0
       elseif y > 255 then
@@ -79,7 +78,6 @@ function generateAndSave(seed, maxdepth, width, height, dir)
       else
         return y
       end
-=======
     end
 
     function value(offset)
