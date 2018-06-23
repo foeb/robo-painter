@@ -90,17 +90,16 @@ function generateAndSave(seed, maxdepth, width, height, dir)
   print("\tdone!")
 end
 
-local seed = arg[1]
-local maxdepth = arg[2] or 7
-local width = arg[3] or 100
-local height = arg[4] or 100
-local dir = arg[5] or ""
+math.randomseed(os.time())
 
-if seed then
-  generateAndSave(seed, maxdepth, width, height, dir)
-else
-  for i = 1, 100 do
-    print(tostring(i/100))
-    generateAndSave(i + 1100, 5, 512, 512, "images/")
-  end
+local seed = arg[1] or math.random()
+local iterations = arg[2] or 10
+local maxdepth = arg[3] or 7
+local width = arg[4] or 512
+local height = arg[5] or 512
+local dir = arg[6] or "images/"
+
+for i = 0, iterations - 1 do
+  print(tostring(i/100))
+  generateAndSave(i + seed, maxdepth, width, height, dir)
 end
