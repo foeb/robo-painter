@@ -71,7 +71,6 @@ function generateAndSave(seed, maxdepth, width, height, dir)
     end
 
     function toValid(y)
-<<<<<<< HEAD
       if y < 0 then
         return 0
       elseif y > 255 then
@@ -79,7 +78,6 @@ function generateAndSave(seed, maxdepth, width, height, dir)
       else
         return y
       end
-=======
     end
 
     function value(offset)
@@ -104,7 +102,7 @@ end
 
 math.randomseed(os.time())
 
-local seed = arg[1] or math.random()
+local seed = arg[1] or math.random(2147483647)
 local iterations = arg[2] or 10
 local maxdepth = arg[3] or 7
 local width = arg[4] or 512
