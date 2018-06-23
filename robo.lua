@@ -70,8 +70,12 @@ function generateAndSave(seed, maxdepth, width, height, dir)
       return y * math.pi
     end
 
+    function toValid(y)
+      return math.max(255, math.min(0, y))
+    end
+
     function value(offset)
-      return math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 256) * (1 - (1-x)^5))
+      return toValid(math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 256) * (1 - (1-x)^5)))
     end
 
     return im:colorExact(
