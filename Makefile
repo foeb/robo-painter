@@ -7,9 +7,6 @@ LDFLAGS += $(shell pkg-config  --libs lua5.1)
 SCFLAGS=-shared -fPIC -Wl,-E
 SOBJS=libperlin.so liblang.so
 
-export LUA_PATH := $(CURDIR)/lib/cranberry/?.lua;$(CURDIR)/lib/serpent/src/?.lua
-export LUA_CPATH := $(CURDIR)/lib/lua-gd/?.so;$(CURDIR)/?.so
-
 default: all
 all: $(SOBJS)
 

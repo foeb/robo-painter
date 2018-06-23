@@ -1,5 +1,7 @@
-local gd = require "gd"
+package.path = package.path .. ";lib/cranberry/?.lua;lib/serpent/src/?.lua"
+package.cpath = package.cpath .. ";lib/lua-gd/?.so;?.so"
 
+local gd = require "gd"
 local cb = require "cranberry"
 local liblang = require "liblang"
 
@@ -94,7 +96,6 @@ local width = arg[3] or 100
 local height = arg[4] or 100
 local dir = arg[5] or ""
 
-
 if seed then
   generateAndSave(seed, maxdepth, width, height, dir)
 else
@@ -103,5 +104,3 @@ else
     generateAndSave(i + 1100, 5, 512, 512, "images/")
   end
 end
---generateAndSave({}, 0, 512, 512)
-
