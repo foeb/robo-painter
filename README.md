@@ -14,7 +14,7 @@ On Ubuntu 18.04 LTS:
 2. `git submodule init && git submodule update`
 3. build `lib/lua-gd` (see https://github.com/ittner/lua-gd/issues/9 for help)
 
-To run, type `make run` and check `images/`.
+To run, type `make run` for a demo or `lua5.1 robo.lua` for a random seed and check `images/`.
 
 ### LICENSE
 This project is released into the public domain with the help of CC0.
