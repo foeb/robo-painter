@@ -105,8 +105,8 @@ math.randomseed(os.time())
 local seed = arg[1] or math.random(2147483647)
 local iterations = arg[2] or 10
 local maxdepth = arg[3] or 7
-local width = arg[4] or 512
-local height = arg[5] or 512
+local width = arg[4] or 128
+local height = arg[5] or 128
 local dir = arg[6] or "images/"
 
 for i = 0, iterations - 1 do
