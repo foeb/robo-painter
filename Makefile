@@ -9,6 +9,7 @@ SOBJS=libperlin.so liblang.so
 
 default: all
 all: $(SOBJS)
+	mkdir -p $(CURDIR)/images
 
 libperlin.so: libperlin.c libperlin.h
 	$(CC) $(SCFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
@@ -21,4 +22,4 @@ clean:
 	-rm $(SOBJS)
 
 run: all
-	mkdir -p $(CURDIR)/images; $(LUA) robo.lua 1149 1 5
+	$(LUA) robo.lua 1 1149 5 512 512

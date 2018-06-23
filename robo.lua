@@ -5,12 +5,12 @@ local gd = require "gd"
 local cb = require "cranberry"
 local liblang = require "liblang"
 
-function getName(seed, maxdepth, width, height)
+local function getName(seed, maxdepth, width, height)
   return "exp-" .. seed .. "_" .. maxdepth .. "x" .. width .. "x" .. height
 end
 
-function expToString(exp, seed, maxdepth, width, height)
-  result = "return {\n" ..
+local function expToString(exp, seed, maxdepth, width, height)
+  local result = "return {\n" ..
     "  seed = " .. seed  .. ",\n" ..
     "  maxdepth = " .. maxdepth .. ",\n" ..
     "  width = " .. width .. ",\n" ..
@@ -24,9 +24,39 @@ function expToString(exp, seed, maxdepth, width, height)
   return result
 end
 
-function generateAndSave(seed, maxdepth, width, height, dir)
+local function getColor(im, x, rOffset, gOffset, bOffset)
+  local function toRadians(y)
+    return y * math.pi
+  end
+
+  local function toValid(y)
+    if y < 0 then
+      return 0
+    elseif y > 255 then
+      return 255
+    else
+      return y
+    end
+  end
+
+  local function value(offset)
+    return toValid(math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 255) * (1 - (1-x)^5)))
+  end
+
+  return im:colorExact(
+      value(rOffset), value(gOffset), value(bOffset))
+end
+
+local function generateAndSave(seed, maxdepth, width, height, dir, rOffset, gOffset, bOffset)
+  local maxdepth = maxdepth or 7
+  local width = width or 128
+  local height = height or 128
+  local dir = dir or "images/"
+  local rOffset = rOffset or 0.33 * 2 * math.pi/3
+  local gOffset = gOffset or 0
+  local bOffset = bOffset or 0.66 * 4 * math.pi/3
+
   local im = gd.createTrueColor(width, height)
-  dir = dir or ""
 
   local exp
   if type(seed) == "table" then
@@ -65,33 +95,11 @@ function generateAndSave(seed, maxdepth, width, height, dir)
     cb.map_(function(x) return (x - min)/(max - min) end, expmap)
   end
 
-  function getColor(x)
-    function toRadians(y)
-      return y * math.pi
-    end
-
-    function toValid(y)
-      if y < 0 then
-        return 0
-      elseif y > 255 then
-        return 255
-      else
-        return y
-      end
-    end
-
-    function value(offset)
-      return toValid(math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 256) * (1 - (1-x)^5)))
-    end
-
-    return im:colorExact(
-        value(0.33 * 2 * math.pi/3), value(0), value(0.66 * 4 * math.pi/3))
-  end
 
   print("\tdrawing " .. seed)
   for y = 1, height do
     for x = 1, width do
-      im:setPixel(x-1, y-1, getColor(expmap[(y-1)*width + x]))
+      im:setPixel(x-1, y-1, getColor(im, expmap[(y-1)*width + x], rOffset, gOffset, bOffset))
     end
   end
 
@@ -102,14 +110,17 @@ end
 
 math.randomseed(os.time())
 
-local seed = arg[1] or math.random(2147483647)
-local iterations = arg[2] or 10
-local maxdepth = arg[3] or 7
-local width = arg[4] or 128
-local height = arg[5] or 128
-local dir = arg[6] or "images/"
+local iterations = arg[1] or 10
+local seed       = arg[2] or math.random(2147483647)
+local maxdepth   = arg[3]
+local width      = arg[4]
+local height     = arg[5]
+local dir        = arg[6]
+local rOffset    = arg[7]
+local gOffset    = arg[8]
+local bOffset    = arg[9]
 
 for i = 0, iterations - 1 do
   print(tostring(math.floor(100 * i/iterations)) .. "%")
-  generateAndSave(i + seed, maxdepth, width, height, dir)
+  generateAndSave(i + seed, maxdepth, width, height, dir, rOffset, gOffset, bOffset)
 end
