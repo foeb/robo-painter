@@ -21,4 +21,4 @@ clean:
 	-rm $(SOBJS)
 
 run: all
-	mkdir -p $(CURDIR)/images; $(LUA) graphics.lua
+	mkdir -p $(CURDIR)/images; $(LUA) robo.lua
