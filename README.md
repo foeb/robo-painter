@@ -1,10 +1,6 @@
 ![Seed: 1149, Depth: 5](exp-1149_5.png "Seed: 1149, Depth: 5")
 
-This is an (incomplete) system for generating
-terrain heightmaps using techniques from genetic programming. That is,
-it uses fitness functions as a guide to select abstract syntax trees
-of mathematical expressions to combine into new, hopefully better,
-expressions until time runs out or we find something acceptable.
+This is a simple program to procedurally generate a random function and use it to create a hopefully interesting image. The original idea was to use genetic programming techniques on these expression trees to search for better and better images, but that hasn't happened yet.
 
 ### BUILDING
 
