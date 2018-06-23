@@ -70,8 +70,18 @@ function generateAndSave(seed, maxdepth, width, height, dir)
       return y * math.pi
     end
 
+    function toValid(y)
+      if y < 0 then
+        return 0
+      elseif y > 255 then
+        return 255
+      else
+        return y
+      end
+    end
+
     function value(offset)
-      return math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 256) * (1 - (1-x)^5))
+      return toValid(math.floor((math.floor(math.cos(toRadians(x) + offset) ^ 2 * 255) % 256) * (1 - (1-x)^5)))
     end
 
     return im:colorExact(
@@ -100,6 +110,6 @@ local height = arg[5] or 512
 local dir = arg[6] or "images/"
 
 for i = 0, iterations - 1 do
-  print(tostring(i/100))
+  print(tostring(math.floor(100 * i/iterations)) .. "%")
   generateAndSave(i + seed, maxdepth, width, height, dir)
 end
